@@ -1,0 +1,35 @@
+# Commands to create self signed certificate on apache2 server in docker container
+
+See project ssl-demo on personal Github
+
+## General Docker commands
+
+###
+```
+docker exec -i -t apache2 /bin/bash
+docker system prune -a
+docker-compose up
+```
+
+### Linux commands on container
+apt-get update && apt-get install -y nano && apt-get install -y openssl
+
+
+#### Create selfsigned certificate
+
+# In SSL folder
+openssl genrsa -des3 -passout pass:salt -out server.pass.key 2048
+openssl rsa -passin pass:salt -in server.pass.key -out server.key
+rm server.pass.key
+openssl req -new -key server.key -out server.csr
+
+# Create certificate
+openssl x509 -req -days 365 -in server.csr -signkey server.key -out certs/apache-selfsigned.crt
+
+####
+
+nano /etc/apache2/conf-available/ssl-params.conf
+nano /etc/apache2/sites-available/rest-demo-ssl.conf
+a2enmod ssl 
+a2enmod headers
+apache2ctl configtest
